@@ -23,6 +23,7 @@ def main():
     if os.path.isfile(inputPath):
         output_path = "source.asm"
         code_writer = CodeWriter(output_path)
+        code_writer.setFileName(os.path.splitext(os.path.basename(inputPath))[0])
         translate_file(inputPath, code_writer)
         code_writer.close()
     elif os.path.isdir(inputPath):
