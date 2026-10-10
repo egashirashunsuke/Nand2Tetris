@@ -33,4 +33,62 @@ CHIP CPU {
 
     PARTS:
 	//// Replace this comment with your code.
+    DMux8Way(in= true, sel= instruction[3..5], a= ddd1, b= ddd2, c= ddd3, d= ddd4, e= ddd5, f= ddd6, g= ddd7, h= ddd8);
+
+    Or(a= ddd3, b= ddd4, out= ddd9);
+    Or(a= ddd7, b= ddd8, out= ddd10);
+    Or(a= ddd9, b= ddd10, out= ddd11);
+    And(a= instruction[15], b= ddd11, out= outddd11);
+
+    Or(a= ddd2, b= ddd4, out= ddd12);
+    Or(a= ddd6, b= ddd8, out= ddd13);
+    Or(a= ddd12, b= ddd13, out= ddd14);
+    And(a= instruction[15], b= ddd14, out= writeM);
+
+
+    Or(a= ddd5, b= ddd6, out= ddd15);
+    Or(a= ddd15, b= ddd10, out= ddd16);
+    Not(in= instruction[15], out= notinst);
+    Or(a= notinst, b= ddd16, out= outddd16);
+
+    //PC
+    DMux8Way(in= true, sel= instruction[0..2], a= jjj1, b= jjj2, c= jjj3, d= jjj4, e= jjj5, f= jjj6, g= jjj7, h= jjj8);
+
+    Not(in= zr, out= notzr);
+    Not(in= ng, out= notng);
+
+    And(a= jjj2, b= notzr, out= jjj9);
+    And(a= jjj9, b= notng, out= jjj10);
+
+    And(a= jjj3, b= zr, out= jjj11);
+
+    Or(a= zr, b= notng, out= jjj12);
+    And(a= jjj4, b= jjj12, out= jjj13);
+
+    And(a= jjj5, b= notzr, out= jjj14);
+    And(a= jjj14, b= ng, out= jjj15);
+
+    And(a= jjj6, b= notzr, out= jjj16);
+
+    Or(a= zr, b= ng, out= jjj17);
+    And(a= jjj7, b= jjj17, out= jjj18);
+
+    Or8Way(in[0]= false, in[1]= jjj10, in[2]= jjj11, in[3]= jjj13, in[4]= jjj15, in[5]= jjj16, in[6]= jjj18, in[7]= jjj8, out= jjjout);
+
+    And(a= jjjout, b= instruction[15], out= jjjout2);
+    Not(in= jjjout2, out= notjjjout);
+
+    //combination
+    Mux16(a= instruction, b= out7, sel= instruction[15], out= out1);
+    
+    ARegister(in= out1 , load= outddd16, out= out2, out[0..14]=addressM);
+
+    Mux16(a= out2, b= inM, sel= instruction[12], out= out3);
+
+    DRegister(in= out7, load= outddd11, out= out4);
+
+    ALU(x=out4 , y= out3, zx= instruction[11], nx= instruction[10], zy= instruction[9], ny= instruction[8], f= instruction[7], no= instruction[6], out= out7, out= outM, zr= zr, ng= ng);
+
+    PC(in= out2, load= jjjout2, inc= notjjjout, reset= reset, out[0..14]= pc);
+
 }

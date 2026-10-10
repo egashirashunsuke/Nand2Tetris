@@ -26,4 +26,18 @@ CHIP Memory {
 
     PARTS:
 	//// Replace this comment with your code.
+    DMux8Way(in= load, sel= address[12..14], a= out1, b= out2, c= out3, d= out4, e= out5, f= out6, g= out7, h= out8);
+
+    Or(a= out1, b= out2, out= out9);
+    Or(a= out3, b= out4, out= out10);
+    Or(a= out9, b= out10, out= out11);
+
+    Or(a= out5, b= out6, out= out12);
+    Or(a= out7, b= out12, out= out13);
+
+    RAM16K(in= in, load= out11, address[0..13]= address[0..13],out= out14);
+    Screen(in= in, load= out13, address[0..12]= address[0..12],out= out15);
+    Keyboard(out= out16);
+
+    Mux8Way16(a= out14, b= out14, c= out14, d= out14, e= out15, f= out15, g= out15, h= out16, sel= address[12..14], out= out);
 }
